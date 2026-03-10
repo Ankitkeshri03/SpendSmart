@@ -65,7 +65,6 @@
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
 
-# Categories
 categories = [
     "Utilities",
     "Groceries",
@@ -78,12 +77,10 @@ categories = [
     "Phone/Internet_Bill"
 ]
 
-# Load dataset
 data = pd.read_csv("historic_dataset1.csv")
 
 models = {}
 
-# Train model for each category using lag features
 for category in categories:
 
     df = data[["Month", category]].copy()
@@ -94,7 +91,7 @@ for category in categories:
 
     df = df.dropna()
 
-    X = df[["Prev1", "Prev2", "Prev3"]]
+    X = df[["Month", "Prev1", "Prev2", "Prev3"]]
     y = df[category]
 
     model = RandomForestRegressor(
@@ -117,9 +114,8 @@ def predict_expenses_with_random_forest(month):
         prev2 = data[category].iloc[-2]
         prev3 = data[category].iloc[-3]
 
-        pred = models[category].predict([[prev1, prev2, prev3]])[0]
+        pred = models[category].predict([[month, prev1, prev2, prev3]])[0]
 
         predictions[category] = round(pred, 2)
 
     return predictions
-

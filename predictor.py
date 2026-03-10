@@ -337,7 +337,6 @@
 #     return predictions, round(total, 2)
 
 
-# ```python
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
 
@@ -381,14 +380,18 @@ for category in categories:
 
 
 def predict_expenses_with_random_forest(month):
-    total_expense = 0
-    for category, info in random_forest_models.items():
-        model = info['model']
-        predicted_expense = model.predict(np.array([[month]]))[0]
-        predicted_expense = round(predicted_expense, 2) 
-        predicted_expenses[category] = predicted_expense
-        total_expense += predicted_expense
-        print(f"{category}: ${predicted_expense:.2f}")
-    print(f"Total Expense for Month {month}: ${total_expense:.2f}")
-    
-    return predicted_expenses
+
+    predictions = {}
+
+    for category in categories:
+
+        prev1 = data[category].iloc[-1]
+        prev2 = data[category].iloc[-2]
+        prev3 = data[category].iloc[-3]
+
+        pred = models[category].predict([[month, prev1, prev2, prev3]])[0]
+
+        predictions[category] = round(pred, 2)
+
+    return predictions
+# ```

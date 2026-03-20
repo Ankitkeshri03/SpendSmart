@@ -1,0 +1,198 @@
+description,category
+swiggy order pizza,Food
+zomato dinner with friends,Food
+burger king combo meal,Food
+mcdonalds burger fries,Food
+dominos pizza delivery,Food
+restaurant lunch bill,Food
+cafe coffee snacks,Food
+evening tea biscuits,Food
+food delivery order online,Food
+chinese food takeaway,Food
+
+uber ride to office,Transportation
+ola cab airport drop,Transportation
+bus ticket daily travel,Transportation
+metro recharge card,Transportation
+petrol fuel payment bike,Transportation
+diesel fuel car,Transportation
+auto rickshaw ride,Transportation
+train ticket booking,Transportation
+flight booking travel,Transportation
+taxi ride city,Transportation
+
+electricity bill payment,Utilities
+water bill monthly,Utilities
+gas cylinder refill,Utilities
+house rent payment,Utilities
+maintenance charges building,Utilities
+sewage bill payment,Utilities
+electric repair service,Utilities
+plumber charges,Utilities
+home cleaning service,Utilities
+garbage collection fee,Utilities
+
+wifi recharge bill,Phone/Internet_Bill
+mobile recharge prepaid,Phone/Internet_Bill
+broadband bill payment,Phone/Internet_Bill
+internet fiber connection,Phone/Internet_Bill
+data pack recharge,Phone/Internet_Bill
+postpaid mobile bill,Phone/Internet_Bill
+airtel recharge,Phone/Internet_Bill
+jio recharge,Phone/Internet_Bill
+vodafone bill payment,Phone/Internet_Bill
+wifi installation charge,Phone/Internet_Bill
+
+netflix monthly subscription,Subscriptions
+spotify premium plan,Subscriptions
+amazon prime membership,Subscriptions
+youtube premium subscription,Subscriptions
+hotstar subscription,Subscriptions
+cloud storage subscription,Subscriptions
+software license renewal,Subscriptions
+gym membership monthly,Subscriptions
+online course subscription,Subscriptions
+news app subscription,Subscriptions
+
+movie ticket cinema hall,Entertainment
+gaming purchase online,Entertainment
+concert ticket booking,Entertainment
+party night expenses,Entertainment
+bowling game charges,Entertainment
+netflix movie snacks,Entertainment
+video game purchase,Entertainment
+club entry fee,Entertainment
+amusement park ticket,Entertainment
+music show ticket,Entertainment
+
+doctor consultation fees,Medical_Expenses
+medicine purchase pharmacy,Medical_Expenses
+hospital bill payment,Medical_Expenses
+health checkup test,Medical_Expenses
+dental treatment cost,Medical_Expenses
+eye checkup clinic,Medical_Expenses
+medical insurance payment,Medical_Expenses
+surgery expenses hospital,Medical_Expenses
+xray scan charges,Medical_Expenses
+blood test lab,Medical_Expenses
+
+notebook purchase store,Stationary
+pen pencil books,Stationary
+office supplies purchase,Stationary
+printer ink cartridge,Stationary
+school stationery items,Stationary
+diary notebook purchase,Stationary
+marker highlighter pens,Stationary
+file folders office,Stationary
+paper bundle purchase,Stationary
+stapler pins purchase,Stationary
+
+grocery shopping supermarket,Groceries
+vegetables fruits market,Groceries
+milk bread eggs purchase,Groceries
+daily grocery items,Groceries
+rice wheat flour purchase,Groceries
+snacks chips grocery,Groceries
+kitchen essentials shopping,Groceries
+supermarket bill payment,Groceries
+fruits vegetables weekly,Groceries
+household grocery shopping,Groceries
+
+pizza order late night,Food
+coffee starbucks bill,Food
+dinner restaurant bill,Food
+breakfast sandwich order,Food
+food court meal,Food
+snacks chips coke,Food
+bakery cake purchase,Food
+lunch thali restaurant,Food
+fast food burger fries,Food
+street food pani puri,Food
+
+cab ride evening,Transportation
+bike fuel refill,Transportation
+bus monthly pass,Transportation
+metro ticket recharge,Transportation
+uber ride night,Transportation
+ola auto ride,Transportation
+taxi airport pickup,Transportation
+train reservation ticket,Transportation
+petrol bunk payment,Transportation
+travel expenses cab,Transportation
+
+electric bill monthly,Utilities
+water supply bill,Utilities
+gas booking cylinder,Utilities
+rent house payment,Utilities
+home repair electrician,Utilities
+plumbing repair work,Utilities
+cleaning maid payment,Utilities
+maintenance society fee,Utilities
+home service charges,Utilities
+apartment charges monthly,Utilities
+
+mobile recharge monthly,Phone/Internet_Bill
+internet broadband bill,Phone/Internet_Bill
+wifi recharge home,Phone/Internet_Bill
+data plan recharge,Phone/Internet_Bill
+sim card recharge,Phone/Internet_Bill
+phone bill payment,Phone/Internet_Bill
+internet usage bill,Phone/Internet_Bill
+wifi router recharge,Phone/Internet_Bill
+postpaid bill monthly,Phone/Internet_Bill
+network recharge payment,Phone/Internet_Bill
+
+spotify subscription monthly,Subscriptions
+netflix yearly plan,Subscriptions
+prime video membership,Subscriptions
+gym annual fee,Subscriptions
+software monthly plan,Subscriptions
+online learning subscription,Subscriptions
+magazine subscription,Subscriptions
+news subscription app,Subscriptions
+cloud service plan,Subscriptions
+fitness app subscription,Subscriptions
+
+movie night expense,Entertainment
+game purchase online,Entertainment
+concert show ticket,Entertainment
+party drinks expense,Entertainment
+club entry night,Entertainment
+gaming console purchase,Entertainment
+event ticket booking,Entertainment
+fun park visit ticket,Entertainment
+music event booking,Entertainment
+cinema popcorn snacks,Entertainment
+
+hospital emergency bill,Medical_Expenses
+doctor visit charges,Medical_Expenses
+medicine pharmacy bill,Medical_Expenses
+lab test payment,Medical_Expenses
+health checkup cost,Medical_Expenses
+clinic consultation fee,Medical_Expenses
+medical treatment charges,Medical_Expenses
+surgery hospital bill,Medical_Expenses
+healthcare expenses,Medical_Expenses
+doctor prescription medicine,Medical_Expenses
+
+school supplies purchase,Stationary
+office pen purchase,Stationary
+notebook diary shopping,Stationary
+printer paper purchase,Stationary
+stationery shop bill,Stationary
+writing material purchase,Stationary
+office desk supplies,Stationary
+file document folder,Stationary
+school bag stationery,Stationary
+art supplies purchase,Stationary
+
+supermarket groceries bill,Groceries
+vegetable vendor purchase,Groceries
+fruit market shopping,Groceries
+milk dairy products,Groceries
+kitchen grocery items,Groceries
+snacks grocery store,Groceries
+weekly grocery shopping,Groceries
+daily household groceries,Groceries
+provision store bill,Groceries
+food essentials shopping,Groceries

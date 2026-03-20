@@ -325,6 +325,8 @@ import sqlite3
 import database
 import predictor
 import plotly.graph_objects as go
+import nlp_model
+
 
 # ---------------- PAGE CONFIG ----------------
 st.set_page_config(
@@ -504,23 +506,39 @@ elif nv == "Add Transactions":
 
             date = st.date_input("Date")
 
-            category = st.selectbox(
-                "Category",
-                [
-                    "Utilities","Groceries","Food","Transportation",
-                    "Stationary","Subscriptions","Entertainment",
-                    "Medical_Expenses","Phone/Internet_Bill"
-                ]
-            )
-
-            amount = st.number_input("Amount",min_value=0.01)
             description = st.text_area("Description")
+
+            # 🔥 NLP AUTO CATEGORY
+            categories = [
+                "Utilities","Groceries","Food","Transportation",
+                "Stationary","Subscriptions","Entertainment",
+                "Medical_Expenses","Phone/Internet_Bill"
+            ]
+
+            if description:
+                try:
+                    predicted_cat = nlp_model.predict_category(description)
+                    st.success(f"Auto Category: {predicted_cat}")
+
+                    # allow user to change (better UX)
+                    category = st.selectbox(
+                        "Category",
+                        categories,
+                        index=categories.index(predicted_cat)
+                    )
+                except:
+                    category = st.selectbox("Category", categories)
+            else:
+                category = st.selectbox("Category", categories)
+
+            amount = st.number_input("Amount", min_value=0.01)
 
             submit = st.form_submit_button("Add Expense")
 
         if submit:
-            database.add_debit(date,amount,category,description)
-            st.success("Expense added")
+            database.add_debit(date, amount, category, description)
+            predictor.retrain_models()
+            st.success("Expense added & model updated!")
 
     else:
 
@@ -540,7 +558,9 @@ elif nv == "Add Transactions":
 
         if submit:
             database.add_credit(date,amount,category,description)
-            st.success("Income added")
+            predictor.retrain_models()
+
+            st.success("Income added & model updated!")
 
 # =========================================================
 # EDIT / DELETE
@@ -655,11 +675,25 @@ elif nv == "Expense Predictor":
 
         predicted = predictor.predict_expenses_with_random_forest(month_number)
 
-        df = pd.DataFrame(predicted.items(),columns=["Category","Predicted Expense"])
+        df = pd.DataFrame(predicted.items(), columns=["Category", "Predicted Expense"])
 
+        st.subheader("📊 Predicted Expenses")
         st.dataframe(df)
 
         st.success(f"Total Predicted Expense ₹{df['Predicted Expense'].sum():.2f}")
+
+        # 🔥 SMART BUDGET
+        budget = predictor.recommend_budget(predicted)
+
+        df_budget = pd.DataFrame(
+            budget.items(),
+            columns=["Category", "Recommended Budget"]
+        )
+
+        st.subheader("💡 Smart Budget Recommendation")
+        st.dataframe(df_budget)
+
+        st.success(f"Recommended Total Budget ₹{df_budget['Recommended Budget'].sum():.2f}")
 
 # =========================================================
 # VISUALIZATION

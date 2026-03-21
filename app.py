@@ -8,7 +8,6 @@ import predictor
 import plotly.graph_objects as go
 import nlp_model
 
-
 # ---------------- PAGE CONFIG ----------------
 st.set_page_config(
     page_title="SpendSmart",
@@ -16,7 +15,40 @@ st.set_page_config(
     layout="wide"
 )
 
+# ---------------- SESSION ----------------
+if "user_id" not in st.session_state:
+    st.session_state.user_id = None
+
 st.title("💰 SpendSmart")
+
+# ---------------- LOGIN ----------------
+st.sidebar.subheader("Login / Signup")
+
+option = st.sidebar.radio("Choose", ["Login", "Signup"])
+
+username = st.sidebar.text_input("Username")
+password = st.sidebar.text_input("Password", type="password")
+
+if option == "Signup":
+    if st.sidebar.button("Create Account"):
+        database.create_user(username, password)
+        st.success("Account created!")
+
+elif option == "Login":
+    if st.sidebar.button("Login"):
+        user = database.check_user(username, password)
+        if user:
+            st.session_state.user_id = user[0]
+            st.success("Logged in!")
+        else:
+            st.error("Invalid credentials")
+
+# 🔒 STOP if not logged in
+if st.session_state.user_id is None:
+    st.warning("Please login first")
+    st.stop()
+
+user_id = st.session_state.user_id
 
 # ---------------- DATABASE FOR SALARY ----------------
 conn = sqlite3.connect("transactions.db")
@@ -24,8 +56,10 @@ cursor = conn.cursor()
 
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS monthly_salary(
-month TEXT PRIMARY KEY,
-salary REAL
+user_id INTEGER,
+month TEXT,
+salary REAL,
+PRIMARY KEY(user_id, month)
 )
 """)
 conn.commit()
@@ -80,12 +114,11 @@ if nv == "About":
     st.markdown("- **Secure:** Your financial data is securely stored.")
 
 # =========================================================
-# HOME DASHBOARD
+# HOME
 # =========================================================
 elif nv == "Home":
 
     st.header("📊 Personal Finance Dashboard")
-
     st.image(
         "https://images.unsplash.com/photo-1554224155-6726b3ff858f",
         caption="Take control of your finances",
@@ -101,12 +134,10 @@ elif nv == "Home":
 
     current_month = datetime.now().strftime("%Y-%m")
 
-    # Retrieve stored salary
     cursor.execute(
-        "SELECT salary FROM monthly_salary WHERE month=?",
-        (current_month,)
+        "SELECT salary FROM monthly_salary WHERE user_id=? AND month=?",
+        (user_id, current_month)
     )
-
     result = cursor.fetchone()
 
     default_salary = result[0] if result else 0
@@ -118,59 +149,37 @@ elif nv == "Home":
     )
 
     if st.button("Save Salary"):
-
         cursor.execute(
-            "INSERT OR REPLACE INTO monthly_salary(month,salary) VALUES(?,?)",
-            (current_month, salary)
+            "INSERT OR REPLACE INTO monthly_salary(user_id,month,salary) VALUES(?,?,?)",
+            (user_id, current_month, salary)
         )
-
         conn.commit()
         st.success("Salary saved successfully")
 
-    debit_data = database.get_debit_record()
-    credit_data = database.get_credit_record()
+    debit_data = database.get_debit_record(user_id)
+    credit_data = database.get_credit_record(user_id)
 
     total_expense = 0
     total_income = 0
 
     if debit_data:
-        df = pd.DataFrame(
-            debit_data,
-            columns=["ID","Date","Amount","Category","Description"]
-        )
-
+        df = pd.DataFrame(debit_data, columns=["ID","Date","Amount","Category","Description"])
         df["Date"] = pd.to_datetime(df["Date"])
-
         month_df = df[df["Date"].dt.strftime("%Y-%m") == current_month]
-
         total_expense = month_df["Amount"].sum()
 
     if credit_data:
-        df = pd.DataFrame(
-            credit_data,
-            columns=["ID","Date","Amount","Category","Description"]
-        )
-
+        df = pd.DataFrame(credit_data, columns=["ID","Date","Amount","Category","Description"])
         df["Date"] = pd.to_datetime(df["Date"])
-
         month_df = df[df["Date"].dt.strftime("%Y-%m") == current_month]
-
         total_income = month_df["Amount"].sum()
 
     remaining = salary + total_income - total_expense
 
     col1, col2, col3 = st.columns(3)
-
     col1.metric("💰 Total Income", f"₹{salary + total_income:.2f}")
     col2.metric("💳 Total Expenses", f"₹{total_expense:.2f}")
     col3.metric("💵 Remaining Balance", f"₹{remaining:.2f}")
-
-    if remaining < 0:
-        st.error("⚠️ You exceeded your budget!")
-    elif remaining < salary * 0.2:
-        st.warning("⚠️ Budget almost finished")
-    else:
-        st.success("✅ Budget under control")
 
 # =========================================================
 # ADD TRANSACTIONS
@@ -184,12 +193,9 @@ elif nv == "Add Transactions":
     if tran_type == "Debit":
 
         with st.form("debit_form"):
-
             date = st.date_input("Date")
-
             description = st.text_area("Description")
 
-            # 🔥 NLP AUTO CATEGORY
             categories = [
                 "Utilities","Groceries","Food","Transportation",
                 "Stationary","Subscriptions","Entertainment",
@@ -200,48 +206,33 @@ elif nv == "Add Transactions":
                 try:
                     predicted_cat = nlp_model.predict_category(description)
                     st.success(f"Auto Category: {predicted_cat}")
-
-                    # allow user to change (better UX)
-                    category = st.selectbox(
-                        "Category",
-                        categories,
-                        index=categories.index(predicted_cat)
-                    )
+                    category = st.selectbox("Category", categories, index=categories.index(predicted_cat))
                 except:
                     category = st.selectbox("Category", categories)
             else:
                 category = st.selectbox("Category", categories)
 
             amount = st.number_input("Amount", min_value=0.01)
-
             submit = st.form_submit_button("Add Expense")
 
         if submit:
-            database.add_debit(date, amount, category, description)
-            predictor.retrain_models()
-            st.success("Expense added & model updated!")
+            database.add_debit(user_id, date, amount, category, description)
+            predictor.retrain_models(user_id)
+            st.success("Expense added!")
 
     else:
 
         with st.form("credit_form"):
-
             date = st.date_input("Date")
-
-            category = st.selectbox(
-                "Category",
-                ["Salary","Sale","Lottery","Bank_Interest","Rent_Received"]
-            )
-
+            category = st.selectbox("Category", ["Salary","Sale","Lottery","Bank_Interest","Rent_Received"])
             amount = st.number_input("Amount",min_value=0.01)
             description = st.text_area("Description")
-
             submit = st.form_submit_button("Add Income")
 
         if submit:
-            database.add_credit(date,amount,category,description)
-            predictor.retrain_models()
-
-            st.success("Income added & model updated!")
+            database.add_credit(user_id, date, amount, category, description)
+            predictor.retrain_models(user_id)
+            st.success("Income added!")
 
 # =========================================================
 # EDIT / DELETE
@@ -258,36 +249,36 @@ elif nv == "Edit/Delete Transactions":
     transaction = None
 
     if tran_type == "Debit":
-        transaction = database.get_debit_tran_id(transaction_id)
+        transaction = database.get_debit_tran_id(transaction_id, user_id)
     else:
-        transaction = database.get_credit_tran_id(transaction_id)
+       transaction = database.get_credit_tran_id(transaction_id, user_id)
 
     if transaction:
 
         st.subheader("Transaction Details")
 
-        st.write(f"Date: {transaction[1]}")
-        st.write(f"Amount: ₹{transaction[2]}")
-        st.write(f"Category: {transaction[3]}")
-        st.write(f"Description: {transaction[4]}")
+        st.write(f"Date: {transaction[2]}")
+        st.write(f"Amount: ₹{transaction[3]}")
+        st.write(f"Category: {transaction[4]}")
+        st.write(f"Description: {transaction[5]}")
         st.write(f"Type: {tran_type}")
 
         if option == "Edit":
 
             with st.form("edit_form"):
 
-                date = st.date_input("Date",pd.to_datetime(transaction[1]))
-                amount = st.number_input("Amount",value=float(transaction[2]))
-                description = st.text_area("Description",value=transaction[4])
+                date = st.date_input("Date", pd.to_datetime(transaction[2]))
+                amount = st.number_input("Amount", value=float(transaction[3]))
+                description = st.text_area("Description", value=transaction[5])
 
                 submit = st.form_submit_button("Update")
 
             if submit:
 
                 if tran_type == "Debit":
-                    database.update_debit(transaction_id,date,transaction[3],amount,description)
+                    database.update_debit(transaction_id, user_id, date, transaction[4], amount, description)
                 else:
-                    database.update_credit(transaction_id,date,transaction[3],amount,description)
+                    database.update_credit(transaction_id, user_id, date, transaction[4], amount, description)
 
                 st.success("Transaction updated")
 
@@ -300,15 +291,14 @@ elif nv == "Edit/Delete Transactions":
                 if st.button("Delete Transaction"):
 
                     if tran_type == "Debit":
-                        database.del_debit_tran(transaction_id)
+                        database.del_debit_tran(transaction_id, user_id)
                     else:
-                        database.del_credit_tran(transaction_id)
+                        database.del_credit_tran(transaction_id, user_id)
 
                     st.success("Transaction deleted")
 
     else:
         st.warning("Transaction not found")
-
 # =========================================================
 # HISTORY
 # =========================================================
@@ -319,25 +309,19 @@ elif nv == "History":
     tran_type = st.radio("Type",["Debit","Credit"])
 
     if tran_type == "Debit":
-        data = database.get_debit_record()
+        data = database.get_debit_record(user_id)
     else:
-        data = database.get_credit_record()
+        data = database.get_credit_record(user_id)
 
     if data:
-
-        df = pd.DataFrame(
-            data,
-            columns=["ID","Date","Amount","Category","Description"]
-        )
-
+        df = pd.DataFrame(data, columns=["ID","User_ID","Date","Amount","Category","Description"])
         st.dataframe(df)
-
     else:
         st.write("No records found")
+# =========================================================
+# PREDICTION
+# =========================================================
 
-# =========================================================
-# EXPENSE PREDICTOR
-# =========================================================
 elif nv == "Expense Predictor":
 
     st.header("🤖 Expense Prediction")
@@ -348,13 +332,16 @@ elif nv == "Expense Predictor":
         "September":9,"October":10,"November":11,"December":12
     }
 
-    selected_month = st.selectbox("Select Month",list(months.keys()))
+    selected_month = st.selectbox("Select Month", list(months.keys()))
 
     if st.button("Predict Expenses"):
 
         month_number = months[selected_month]
 
-        predicted = predictor.predict_expenses_with_random_forest(month_number)
+        # ✅ IMPORTANT
+        predictor.retrain_models(user_id)
+
+        predicted = predictor.predict_expenses_with_random_forest(month_number, user_id)
 
         df = pd.DataFrame(predicted.items(), columns=["Category", "Predicted Expense"])
 
@@ -376,6 +363,7 @@ elif nv == "Expense Predictor":
 
         st.success(f"Recommended Total Budget ₹{df_budget['Recommended Budget'].sum():.2f}")
 
+
 # =========================================================
 # VISUALIZATION
 # =========================================================
@@ -383,13 +371,13 @@ elif nv == "Visual Representations":
 
     st.header("📊 Financial Visualizations")
 
-    debit_data = database.get_debit_record()
+    debit_data = database.get_debit_record(user_id)  # ✅ FIXED
 
     if debit_data:
 
         df = pd.DataFrame(
             debit_data,
-            columns=["ID","Date","Amount","Category","Description"]
+            columns=["ID","User_ID","Date","Amount","Category","Description"]  # ✅ FIXED
         )
 
         df["Date"] = pd.to_datetime(df["Date"])

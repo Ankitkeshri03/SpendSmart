@@ -18,17 +18,17 @@ categories = [
 # ============================================
 # 🔥 LOAD REAL-TIME DATABASE DATA
 # ============================================
-def load_transaction_data():
+def load_transaction_data(user_id):
     import database
 
-    debit_data = database.get_debit_record()
+    debit_data = database.get_debit_record(user_id)
 
     if not debit_data:
         return None
 
     df = pd.DataFrame(
         debit_data,
-        columns=["ID", "Date", "Amount", "Category", "Description"]
+        columns=["ID", "User_ID", "Date", "Amount", "Category", "Description"]
     )
 
     df["Date"] = pd.to_datetime(df["Date"])
@@ -51,8 +51,7 @@ def load_transaction_data():
 # 🔥 MERGE CSV + DB DATA
 # ============================================
 csv_data = pd.read_csv("historic_dataset1.csv")
-db_data = load_transaction_data()
-
+db_data = None   # remove auto load at import
 if db_data is not None:
     data = pd.concat([csv_data, db_data], ignore_index=True)
 else:
@@ -112,13 +111,12 @@ for cat, score in accuracy_scores.items():
 # ============================================
 # 🔥 REAL-TIME RETRAIN FUNCTION (NEW 🔥)
 # ============================================
-def retrain_models():
+def retrain_models(user_id):
 
     global data, models, accuracy_scores
 
     csv_data = pd.read_csv("historic_dataset1.csv")
-    db_data = load_transaction_data()
-
+    db_data = load_transaction_data(user_id)
     if db_data is not None:
         data = pd.concat([csv_data, db_data], ignore_index=True)
     else:
@@ -166,7 +164,19 @@ def retrain_models():
 # ============================================
 # 🔥 PREDICTION FUNCTION (UNCHANGED)
 # ============================================
-def predict_expenses_with_random_forest(month):
+def predict_expenses_with_random_forest(month, user_id):
+    global data
+
+    # ✅ load correct user data
+    csv_data = pd.read_csv("historic_dataset1.csv")
+    db_data = load_transaction_data(user_id)
+
+    if db_data is not None:
+        data = pd.concat([csv_data, db_data], ignore_index=True)
+    else:
+        data = csv_data
+
+    data = data.fillna(0)
 
     predictions = {}
     total_expense = 0

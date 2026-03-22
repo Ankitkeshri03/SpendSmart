@@ -397,7 +397,7 @@ def init_db():
     conn = sql.connect("transactions.db")
     c = conn.cursor()
 
-    # Users table
+    # Users
     c.execute('''
     CREATE TABLE IF NOT EXISTS users (
         user_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -406,7 +406,7 @@ def init_db():
     )
     ''')
 
-    # Debit table
+    # Debit
     c.execute('''
     CREATE TABLE IF NOT EXISTS debit (
         transaction_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -418,7 +418,7 @@ def init_db():
     )
     ''')
 
-    # Credit table
+    # Credit
     c.execute('''
     CREATE TABLE IF NOT EXISTS credit (
         transaction_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -427,6 +427,16 @@ def init_db():
         amount REAL,
         category TEXT,
         description TEXT
+    )
+    ''')
+
+    # 🔥 ADD THIS (missing table)
+    c.execute('''
+    CREATE TABLE IF NOT EXISTS monthly_salary (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER,
+        month TEXT,
+        salary REAL
     )
     ''')
 

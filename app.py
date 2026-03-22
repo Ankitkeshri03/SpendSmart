@@ -1,4 +1,5 @@
 
+
 import streamlit as st
 import pandas as pd
 from datetime import datetime
@@ -163,7 +164,7 @@ elif nv == "Home":
     total_income = 0
 
     if debit_data:
-        df = pd.DataFrame(debit_data, columns=["ID","Date","Amount","Category","Description"])
+        df = pd.DataFrame(debit_data, columns=["ID","User_ID","Date","Amount","Category","Description"])
         df["Date"] = pd.to_datetime(df["Date"])
         month_df = df[df["Date"].dt.strftime("%Y-%m") == current_month]
         total_expense = month_df["Amount"].sum()

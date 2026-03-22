@@ -430,9 +430,11 @@ def init_db():
     )
     ''')
 
-    # 🔥 ADD THIS (missing table)
+    # 🔥 FIX: force recreate monthly_salary (only once)
+    c.execute("DROP TABLE IF EXISTS monthly_salary")
+
     c.execute('''
-    CREATE TABLE IF NOT EXISTS monthly_salary (
+    CREATE TABLE monthly_salary (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER,
         month TEXT,
